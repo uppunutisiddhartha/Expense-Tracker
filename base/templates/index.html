@@ -1,188 +1,502 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Expense Tracker</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
-    <style>
-        body {
-            background-color: #f8f9fa;
-        }
-
-        .navbar {
-            background-color: #686a6d !important;
-        }
-        .navbar-brand {
-            color: #ffffff !important;
-            font-weight: bold;
-        }
-
-        .card {
-            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-        }
-
-        .card-header {
-            background-color: #54575b;
-            color: white;
-            font-weight: bold;
-            text-align: center;
-        }
-
-        .form-control {
-            border-radius: 5px;
-        }
-
-        .btn-primary {
-            background-color: #007bff;
-            border: none;
-            font-weight: bold;
-            border-radius: 35%;
-        }
-        .btn-primary:hover {
-            background-color: #979b9f;
-        }
-
-        table {
-            width: 100%;
-            margin-top: 15px;
-        }
-
-        thead {
-            background-color: #aba49c;
-            color: white;
-        }
-
-        tbody tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-
-        tbody tr:hover {
-            background-color: #dfe6e9;
-        }
-
-        .income {
-            color: green;
-        }
-
-        .expense {
-            color: red;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Financial Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --success: #4cc9f0;
+      --danger: #f72585;
+      --warning: #f8961e;
+      --info: #4895ef;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --light-gray: #e9ecef;
+      --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      --transition: all 0.3s ease;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f5f7fa;
+      margin: 0;
+      padding: 0;
+      color: #333;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--light-gray);
+    }
+    
+    .header h1 {
+      color: var(--dark);
+      font-size: 2.2rem;
+      font-weight: 700;
+    }
+    
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+    
+    /* Summary Cards */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+    
+    .summary-card {
+      background: white;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: var(--card-shadow);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .summary-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .summary-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 5px;
+      height: 100%;
+    }
+    
+    .summary-card:nth-child(1)::before { background: var(--info); }
+    .summary-card:nth-child(2)::before { background: var(--success); }
+    .summary-card:nth-child(3)::before { background: var(--warning); }
+    .summary-card:nth-child(4)::before { background: var(--danger); }
+    .summary-card:nth-child(5)::before { background: var(--primary); }
+    
+    .summary-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gray);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .summary-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--dark);
+      margin-bottom: 8px;
+    }
+    
+    .summary-change {
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .income { color: var(--success); }
+    .expense { color: var(--danger); }
+    
+    /* Form */
+    .form-card {
+      background: #fff;
+      padding: 28px;
+      border-radius: 16px;
+      box-shadow: var(--card-shadow);
+      margin-bottom: 40px;
+    }
+    
+    .form-card h2 {
+      margin-bottom: 24px;
+      color: var(--dark);
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 8px;
+    }
+    
+    label {
+      font-size: 14px;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 8px;
+      color: var(--dark);
+    }
+    
+    input, select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid var(--light-gray);
+      border-radius: 10px;
+      font-size: 15px;
+      transition: var(--transition);
+      background: white;
+    }
+    
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+    }
+    
+    button {
+      margin-top: 16px;
+      padding: 14px 26px;
+      background: var(--primary);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    button:hover {
+      background: var(--secondary);
+      transform: translateY(-2px);
+    }
+    
+    /* Transactions */
+    .transactions {
+      margin-top: 40px;
+    }
+    
+    .transactions h2 {
+      margin-bottom: 20px;
+      color: var(--dark);
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .table-container {
+      overflow-x: auto;
+      border-radius: 14px;
+      box-shadow: var(--card-shadow);
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      min-width: 800px;
+    }
+    
+    th, td {
+      padding: 16px 20px;
+      text-align: left;
+      border-bottom: 1px solid var(--light-gray);
+    }
+    
+    th {
+      background: #f8f9fa;
+      font-weight: 700;
+      color: var(--dark);
+      font-size: 14px;
+      position: sticky;
+      top: 0;
+    }
+    
+    td {
+      font-size: 15px;
+      color: var(--dark);
+    }
+    
+    tr:hover td {
+      background: #f8f9fa;
+    }
+    
+    .income-row { 
+      color: var(--success); 
+      font-weight: 600; 
+    }
+    
+    .expense-row { 
+      color: var(--danger); 
+      font-weight: 600; 
+    }
+    
+    .transaction-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+    }
+    
+    .income-bg {
+      background: rgba(76, 201, 240, 0.15);
+      color: var(--success);
+    }
+    
+    .expense-bg {
+      background: rgba(247, 37, 133, 0.15);
+      color: var(--danger);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+      }
+      
+      .header h1 {
+        font-size: 1.8rem;
+      }
+      
+      .summary-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      th, td {
+        padding: 12px 15px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .container {
+        padding: 15px;
+      }
+      
+      .form-card, .summary-card {
+        padding: 20px;
+      }
+      
+      .summary-value {
+        font-size: 24px;
+      }
+    }
+  </style>
 </head>
 <body>
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"></script>
+  <div class="container">
+    <div class="header">
+  <h1><i class="fas fa-chart-line"></i> Financial Dashboard</h1>
+  <div class="user-info">
+    <div class="user-avatar">R</div>
+    <!-- Django links -->
+    <span>
+      <a href="{% url 'admin_rent_dashboard' %}">Rent Plan</a> |
+      <a href="{% url 'approve_roommates' %}">Roommate Requests</a>
+    </span>
+  </div>
+</div>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-light">
-        <a class="navbar-brand" href="#">Expense Tracker</a>
-    </nav>
 
-    <div class="container mt-4">
-        <div class="row">
-            <!-- Form Section -->
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Add Transaction</h4>
-                    </div>
-                    <div class="card-body">
-                        <form method="POST">
-                            {% csrf_token %}
-                            <div class="form-group">
-                                <input type="datetime-local" id="date" class="form-control" placeholder="Enter date and time" name="date" required>
-                            </div>
-                            <div class="form-group">
-                                <input type="text" class="form-control" placeholder="Enter Expense Name" name="description" required>
-                            </div>
-                            <div class="form-group">
-                                <input type="number" class="form-control" placeholder="Enter Amount" name="amount" required>
-                            </div>
-                            <div class="form-group">
-                                <input type="text" class="form-control" placeholder="Enter Category" name="category" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Transaction Type</label>
-                                <select class="form-control" id="type" name="transaction_type" required>
-                                    <option value="Income">Income</option>
-                                    <option value="Expense">Expense</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Mode of Transaction</label>
-                                <select class="form-control" name="mode_of_transaction" required>
-                                    <option value="Cash">Cash</option>
-                                    <option value="Bank Transfer">Bank Transfer</option>
-                                    <option value="PhonePe">PhonePe</option>
-                                    <option value="Gpay">Gpay</option>
-                                    <option value="Paytm">Paytm</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-block">Add Transaction</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Transaction List Section -->
-            <div class="col-md-8">
-                <div class="card mt-4">
-                    <div class="card-header">
-                        <h4>Financial Summary</h4>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Total Income:</strong> <span class="income">₹{{ total_income }}</span></p>
-                        <p><strong>Total Expenses:</strong> <span class="expense">₹{{ total_expense }}DR</span></p>
-                        <p><strong>Net Worth:</strong> ₹{{ net_worth }}</p>
-                        <p><strong>Savings:</strong> ₹{{ savings }}</p>
-                    </div>
-                </div>
-
-                <div class="card mt-4">
-                    <div class="card-header">
-                        <h4>Transaction History</h4>
-                    </div>
-                    <table class="table table-striped">
-                        <thead>
-                          <tr>
-                            <th scope="col">S.NO</th>
-                            <th scope="col">Date</th>
-                            <th scope="col">Description</th>
-                            <th scope="col">Amount</th>
-                            <th scope="col">Mode of Transaction</th>
-                            <th scope="col">Type</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                            {% for t in transactions|dictsortreversed:"date" %}
-
-                          <tr>
-                            <td>{{ forloop.counter }}</td>
-                            <td>{{ t.date }}</td>
-                            <td>{{ t.description }}</td>
-                            <td class="{% if t.transaction_type == 'Income' %}income{% else %}expense{% endif %}">
-                                ₹{{ t.amount }}{% if t.transaction_type == 'Income' %}CR{% else %}DR{% endif %}
-                            </td>
-                            
-                            <td>{{ t.mode_of_transaction }}</td>
-                            <td>{{ t.transaction_type }}</td>
-                          </tr>
-                          {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+    <!-- Financial Summary -->
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-title"><i class="fas fa-home"></i> Expected Rent</div>
+        <div class="summary-value">₹{{ expected_rent }}</div>
+        <div class="summary-change"><i class="fas fa-info-circle"></i> Total expected from all properties</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-title"><i class="fas fa-money-bill-wave"></i> Collected Rent</div>
+        <div class="summary-value income">₹{{ rent_collected }}</div>
+        <div class="summary-change income"><i class="fas fa-arrow-up"></i> Successfully collected</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-title"><i class="fas fa-clock"></i> Draft (Pending Rent)</div>
+        <div class="summary-value expense">₹{{ draft }}</div>
+        <div class="summary-change expense"><i class="fas fa-exclamation-circle"></i> Awaiting payment</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-title"><i class="fas fa-credit-card"></i> Total Expenses</div>
+        <div class="summary-value expense">₹{{ total_expense }}</div>
+        <div class="summary-change"><i class="fas fa-chart-pie"></i> All expenses</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-title"><i class="fas fa-piggy-bank"></i> Savings</div>
+        <div class="summary-value">₹{{ savings }}</div>
+        <div class="summary-change"><i class="fas fa-balance-scale"></i> After all transactions</div>
+      </div>
     </div>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            let now = new Date();
-            let formattedDateTime = now.toISOString().slice(0, 16);
-            document.getElementById("date").value = formattedDateTime;
-        });
-    </script>
+
+    <!-- Add Transaction Form -->
+    {% if user.is_admin %}
+    <div class="form-card">
+      <h2><i class="fas fa-plus-circle"></i> Add New Transaction</h2>
+      <form method="POST">
+        {% csrf_token %}
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="date"><i class="far fa-calendar-alt"></i> Date</label>
+            <input type="datetime-local" id="date" name="date" required>
+          </div>
+          <div class="form-group">
+            <label for="roommate"><i class="fas fa-user-friends"></i> Roommate</label>
+            <select id="roommate" name="roommate" required>
+              <option value="">-- Select Roommate-</option>
+              {% for r in roommates %}
+                <option value="{{ r.id }}">{{ r.full_name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="description"><i class="fas fa-align-left"></i> Description</label>
+            <input type="text" id="description" name="description" placeholder="Enter description" required>
+          </div>
+          <div class="form-group">
+            <label for="category"><i class="fas fa-tag"></i> Category</label>
+            <input type="text" id="category" name="category" placeholder="E.g. Rent, Food, Utilities" required>
+          </div>
+          <div class="form-group">
+            <label for="transaction_type"><i class="fas fa-exchange-alt"></i> Type</label>
+            <select id="transaction_type" name="transaction_type" required>
+                <option value="">Select</option>
+              <option value="Income">Income</option>
+              <option value="Expense">Expense</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="mode_of_transaction"><i class="fas fa-wallet"></i> Mode</label>
+            <select id="mode_of_transaction" name="mode_of_transaction" required>
+              <option value="Cash">Cash</option>
+              <option value="UPI">UPI</option>
+              <option value="Bank Transfer">Bank Transfer</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="amount"><i class="fas fa-rupee-sign"></i> Amount</label>
+            <input type="number" step="0.01" id="amount" name="amount" placeholder="0.00" required>
+          </div>
+        </div>
+        <button type="submit"><i class="fas fa-save"></i> Save Transaction</button>
+      </form>
+    </div>
+    {% endif %}
+
+    <!-- Transaction History -->
+    <div class="transactions">
+      <h2><i class="fas fa-history"></i> Transaction History</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Roommate</th>
+              <th>Description</th>
+              <th>Category</th>
+              <th>Type</th>
+              <th>Mode</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in transactions %}
+              <tr>
+                <td>{{ t.date|date:"Y-m-d H:i" }}</td>
+                <td>{% if t.roommate %}{{ t.roommate.full_name }}{% else %}-{% endif %}</td>
+                <td>{{ t.description }}</td>
+                <td>{{ t.category }}</td>
+                <td>
+                  <div style="display: flex; align-items: center;">
+                    <div class="transaction-icon {% if t.transaction_type == 'Income' %}income-bg{% else %}expense-bg{% endif %}">
+                      <i class="fas {% if t.transaction_type == 'Income' %}fa-arrow-down{% else %}fa-arrow-up{% endif %}"></i>
+                    </div>
+                    {{ t.transaction_type }}
+                  </div>
+                </td>
+                <td>{{ t.mode_of_transaction }}</td>
+                <td class="{% if t.transaction_type == 'Income' %}income-row{% elif t.transaction_type == 'Expense' %}expense-row{% endif %}">
+                  ₹{{ t.amount }}
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="7" style="text-align:center; padding: 30px;">No transactions recorded yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Set default datetime to current datetime
+    const now = new Date();
+    const formatted = now.toISOString().slice(0,16); 
+    document.getElementById("date").value = formatted;
+    
+    // Add some interactive elements
+    document.addEventListener('DOMContentLoaded', function() {
+      // Add animation to summary cards on page load
+      const cards = document.querySelectorAll('.summary-card');
+      cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+        card.classList.add('animate__fadeInUp');
+      });
+    });
+  </script>
 </body>
 </html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Rent Dashboard</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+{% block content %}
+<div class="container py-5">
+    <h2 class="mb-4 text-center">🏠 Admin Rent Dashboard</h2>
+
+    <!-- Rent Plan Section -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Rent Plan Settings</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" class="row g-3">
+                {% csrf_token %}
+                <input type="hidden" name="update_rent_plan" value="1">
+                <div class="col-md-6">
+                    <label for="start_date" class="form-label">Start Date</label>
+                    <input type="date" name="start_date" value="{{ rent_plan.start_date|date:'Y-m-d' }}" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="monthly_amount" class="form-label">Monthly Rent (₹)</label>
+                    <input type="number" step="0.01" name="monthly_amount" value="{{ rent_plan.monthly_amount }}" class="form-control" required>
+                </div>
+                <div class="col-12 text-end">
+                    <button type="submit" class="btn btn-primary px-4">💾 Update Rent Plan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Roommates Payment Status -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">Roommates Payment Status</h5>
+        </div>
+        <div class="card-body table-responsive">
+            <table class="table table-bordered table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Roommate</th>
+                        <th>Total Paid</th>
+                        <th>Status</th>
+                        <th>Payment History</th>
+                        <th>Record Payment</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in roommates %}
+                    <tr>
+                        <td><strong>{{ data.roommate.full_name|default:data.roommate.username }}</strong></td>
+                        <td class="text-primary fw-bold">₹{{ data.total_paid }}</td>
+                        <td>
+                            {% if data.balance <= 0 %}
+                                <span class="badge bg-success">Paid</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">₹{{ data.balance }} Pending</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <ul class="mb-0 ps-3 small">
+                                {% for p in data.payments %}
+                                    <li>{{ p.date|date:"d M Y" }} - ₹{{ p.amount_paid }} ({{ p.mode_of_transaction }})</li>
+                                {% empty %}
+                                    <li class="text-muted">No payments yet</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                        <td style="min-width: 220px;">
+                            <form method="post" class="d-flex flex-column flex-sm-row gap-2">
+                                {% csrf_token %}
+                                <input type="hidden" name="record_payment" value="1">
+                                <input type="hidden" name="roommate" value="{{ data.roommate.id }}">
+                                <input type="number" step="0.01" name="amount" placeholder="₹ Amount" class="form-control form-control-sm" required>
+                                <select name="mode_of_transaction" class="form-select form-select-sm">
+                                    <option value="Cash">Cash</option>
+                                    <option value="PhonePe">PhonePe</option>
+                                    <option value="GPay">GPay</option>
+                                    <option value="Paytm">Paytm</option>
+                                    <option value="Bank Transfer">Bank Transfer</option>
+                                </select>
+                                <button type="submit" class="btn btn-success btn-sm">Record</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">No roommates assigned yet.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

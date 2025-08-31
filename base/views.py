@@ -118,8 +118,6 @@ def roommate_register(request):
 
 
 
-@never_cache
-#@logout required
 def custom_login(request):
     if request.method == "POST":
         action = request.POST.get("action")
@@ -157,6 +155,10 @@ def custom_login(request):
 
             user = users.first()
 
+            # ✅ Clear old OTP data before generating a new one
+            for key in ["otp", "otp_email", "otp_expiry"]:
+                request.session.pop(key, None)
+
             otp = ''.join(random.choices(string.digits, k=6))
             request.session['otp'] = otp
             request.session['otp_email'] = email
@@ -174,8 +176,6 @@ def custom_login(request):
             return redirect("verify_otp")
 
     return render(request, "login.html")
-
-
 
 
 def verify_otp(request):
@@ -198,6 +198,9 @@ def verify_otp(request):
         # Check if OTP has expired
         if timezone.now() > expiry_dt:
             messages.error(request, "OTP expired. Please login again.")
+            # clear otp-related data
+            for key in ["otp", "otp_email", "otp_expiry"]:
+                request.session.pop(key, None)
             return redirect("login")
 
         if entered_otp == saved_otp:
@@ -210,6 +213,11 @@ def verify_otp(request):
                     return redirect("login")
 
                 login(request, user)
+
+                # ✅ Clear OTP-related session data after successful login
+                for key in ["otp", "otp_email", "otp_expiry"]:
+                    request.session.pop(key, None)
+
                 messages.success(request, "Login successful!")
                 return redirect("index" if user.is_admin() else "userpage")
 
@@ -226,7 +234,6 @@ def verify_otp(request):
             return redirect("verify_otp")
 
     return render(request, "verify_otp.html")
-
 
 def custom_logout(request):
     logout(request)

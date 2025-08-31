@@ -83,16 +83,34 @@ WSGI_APPLICATION = 'tracker.wsgi.application'
 
 import os
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', 'flatmate'),        # default to local db if not set
-        'USER': os.getenv('DB_USER', 'app'),
-        'PASSWORD': os.getenv('DB_PASSWORD', '1223'),
-        'HOST': os.getenv('DB_HOST', 'localhost'),       # use Render's DB host in production
-        'PORT': os.getenv('DB_PORT', '5432'),
+ENV = os.getenv('ENV', 'development')  # 'production' for Render
+
+if ENV == 'production':
+    # Render PostgreSQL settings
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('DB_NAME', 'flatmatedb'),
+            'USER': os.getenv('DB_USER', 'flatmate_user'),
+            'PASSWORD': os.getenv('DB_PASSWORD', 'W0eR9U9ZKYbjX9lGuGV8us2nUxJ7bB8o'),
+            'HOST': os.getenv('DB_HOST', 'dpg-d2q5683e5dus73bm1b7g-a.oregon-postgres.render.com'),
+            'PORT': os.getenv('DB_PORT', '5432'),
+        }
     }
-}
+else:
+    # Local development settings
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('DB_NAME', 'flatmate'),
+            'USER': os.getenv('DB_USER', 'app'),
+            'PASSWORD': os.getenv('DB_PASSWORD', '1223'),
+            'HOST': os.getenv('DB_HOST', 'localhost'),
+            'PORT': os.getenv('DB_PORT', '5432'),
+        }
+    }
+
+
 
 
 

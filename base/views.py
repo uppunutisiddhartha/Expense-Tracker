@@ -8,10 +8,12 @@ from django.conf import settings
 from django.views.decorators.cache import never_cache
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
-
+from django.core.exceptions import MultipleObjectsReturned
+import random
+import string
 from decimal import Decimal
 from datetime import datetime, timedelta
-import random, string
+
 
 from .models import CustomUser, Room, Transaction, Payment, RentPlan
 
@@ -112,10 +114,10 @@ def roommate_register(request):
         return redirect("login")
 
     return render(request, "roommate_register.html")
-import random, string, datetime
-from django.utils import timezone
 
-from django.core.exceptions import MultipleObjectsReturned
+
+
+
 @never_cache
 #@logout required
 def custom_login(request):
@@ -241,14 +243,12 @@ def index(request):
         messages.error(request, "Your account is not approved yet.")
         return redirect("login")
 
-    # Admin can see roommates
     roommates = (
         CustomUser.objects.filter(assigned_admin=request.user, role="roommate", is_approved=True)
         if request.user.is_admin()
         else []
     )
 
-    # Admin list for dropdown
     admins = CustomUser.objects.filter(role="admin") if request.user.is_admin() else []
 
     # Handle Add Transaction
@@ -260,8 +260,7 @@ def index(request):
             messages.error(request, "Invalid date format.")
             return redirect("index")
 
-        selected_id = request.POST.get("roommate")  # can be 'admin-3' or '5'
-
+        selected_id = request.POST.get("roommate")
         roommate = None
         if selected_id and not selected_id.startswith("admin-"):
             try:
@@ -282,14 +281,13 @@ def index(request):
         )
         return redirect("index")
 
-    # Dashboard calculations
     transactions = Transaction.objects.all().order_by("-date")
     total_income = sum(t.amount for t in transactions if t.transaction_type == "Income")
     total_expense = sum(t.amount for t in transactions if t.transaction_type == "Expense")
     adjusted_expense = max(total_expense - total_income, Decimal(0))
 
     rent_plan = RentPlan.objects.filter(admin=request.user).first()
-    expected_rent = rent_plan.monthly_amount * roommates.count() if rent_plan else Decimal(0)
+    expected_rent = rent_plan.monthly_amount * (roommates.count() + 1) if rent_plan else Decimal(0)  # include admin
 
     rent_collected = Payment.objects.filter(rent_plan__admin=request.user).aggregate(
         total=models.Sum("amount_paid")
@@ -386,7 +384,8 @@ def userpage(request):
             "payments": payments
         })
 
-    total_expected = rent_plan.monthly_amount * Decimal(roommate_count)
+    total_expected= rent_plan.monthly_amount * (roommates.count() + 1) if rent_plan else Decimal(0)
+
     draft = total_expected - total_collected
 
     # --- Transactions ---
@@ -414,7 +413,7 @@ def userpage(request):
 
 
 # ---------------- RENT DASHBOARD ----------------
-
+@login_required
 def admin_rent_dashboard(request):
     admin_user = request.user
     if not admin_user.is_admin():
@@ -472,25 +471,25 @@ def admin_rent_dashboard(request):
 
     # --- Dashboard Data ---
     roommates = CustomUser.objects.filter(assigned_admin=admin_user, role="roommate")
-    roommate_count = roommates.count()
+    all_users = list(roommates) + [admin_user]  # Include admin for payments
 
     roommate_data = []
     total_collected = Decimal(0)
 
-    for rm in roommates:
-        payments = Payment.objects.filter(roommate=rm, rent_plan=rent_plan)
+    for user in all_users:
+        payments = Payment.objects.filter(roommate=user, rent_plan=rent_plan)
         total_paid = sum(p.amount_paid for p in payments)
         balance = rent_plan.monthly_amount - total_paid
         total_collected += total_paid
 
         roommate_data.append({
-            "roommate": rm,
+            "roommate": user,
             "total_paid": total_paid,
             "balance": balance,
             "payments": payments
         })
 
-    total_expected = rent_plan.monthly_amount * Decimal(roommate_count)
+    total_expected = rent_plan.monthly_amount * Decimal(len(all_users))  # includes admin
     draft = total_expected - total_collected
 
     transactions = Transaction.objects.filter(rent_plan=rent_plan)
@@ -508,7 +507,9 @@ def admin_rent_dashboard(request):
         "total_expenses": total_expenses,
         "total_income": total_income,
         "savings": savings,
+        "admin_user_id": admin_user.id,
     })
+
 # def verify_otp(request):
 #     if request.method == "POST":
 #         entered_otp = request.POST.get("otp")

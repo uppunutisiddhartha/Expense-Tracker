@@ -81,16 +81,19 @@ WSGI_APPLICATION = 'tracker.wsgi.application'
 #     }
 # }
 
+import os
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'flatmate',
-        'USER': 'app',
-        'PASSWORD': '1223',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': os.getenv('DB_NAME', 'flatmate'),        # default to local db if not set
+        'USER': os.getenv('DB_USER', 'app'),
+        'PASSWORD': os.getenv('DB_PASSWORD', '1223'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),       # use Render's DB host in production
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
+
 
 
 

@@ -3,15 +3,17 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.mail import send_mail
-from django.db import models 
+from django.db import models
 from django.conf import settings
-from .models import CustomUser, Room, Transaction, Payment, RentPlan
-from datetime import datetime, timedelta
-from decimal import Decimal
-from django.utils import timezone
-import random, string
-from datetime import datetime
 from django.views.decorators.cache import never_cache
+from django.utils import timezone
+from django.utils.dateparse import parse_datetime
+
+from decimal import Decimal
+from datetime import datetime, timedelta
+import random, string
+
+from .models import CustomUser, Room, Transaction, Payment, RentPlan
 
 # ---------------- AUTH ----------------
 
@@ -172,12 +174,7 @@ def custom_login(request):
     return render(request, "login.html")
 
 
-from django.utils.dateparse import parse_datetime
-from django.utils import timezone
-from django.contrib import messages
-from django.shortcuts import redirect, render
-from django.contrib.auth import login
-from .models import CustomUser
+
 
 def verify_otp(request):
     if request.method == "POST":

@@ -12,5 +12,7 @@ urlpatterns = [
     path("approve-roommates/", views.approve_roommates, name="approve_roommates"),
     path("userpage/", views.userpage, name="userpage"),
     # path('requests',views.approve,name="approve")
-    path("admin_rent_dashboard",views.admin_rent_dashboard,name="admin_rent_dashboard")
+    path("admin_rent_dashboard",views.admin_rent_dashboard,name="admin_rent_dashboard"),
+     path("verify-otp/", views.verify_otp, name="verify_otp"),
+    path("about/", views.about, name="about"),
 ]

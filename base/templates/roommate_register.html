@@ -4,193 +4,599 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Roommate Registration</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <title>Roommate Registration | FlatMate</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root {
-      --bg: #f0f4f8;
-      --card: #fff;
-      --text: #1f2937;
-      --muted: #6b7280;
-      --primary: #2563eb;
-      --primary-hover: #1d4ed8;
-
-      --success-bg: #ecfdf5;
-      --success: #065f46;
-      --success-border: #34d399;
-      --error-bg: #fef2f2;
-      --error: #991b1b;
-      --error-border: #fca5a5;
-      --info-bg: #eff6ff;
-      --info: #1e3a8a;
-      --info-border: #93c5fd;
-      --warning-bg: #fff7ed;
-      --warning: #92400e;
-      --warning-border: #fdba74;
-    }
-
-    * {
-      box-sizing: border-box;
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
     }
 
     body {
-      margin: 0;
       font-family: 'Roboto', sans-serif;
-      background: linear-gradient(to bottom right, #e0f7fa, #f0f4f8);
-      color: var(--text);
-      line-height: 1.5;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      color: #333;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
     }
 
-    /* Navigation */
+    /* Navbar */
     nav {
-      background: #fff;
-      padding: 15px 30px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 15px 5%;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
-    nav a {
-      color: #2563eb;
-      text-decoration: none;
-      margin-left: 20px;
-      font-weight: 500;
+    nav .logo { 
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700; 
+      font-size: 22px; 
+      color: #4a6cf7; 
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-
-    nav a:hover {
-      text-decoration: underline;
+    
+    nav .nav-links {
+      display: flex;
+      gap: 25px;
     }
-
-    /* Form Card */
-    .wrap {
-      max-width: 440px;
-      margin: 4rem auto;
-      padding: 0 1rem;
+    
+    nav a { 
+      color: #4a5568; 
+      text-decoration: none; 
+      font-weight: 500; 
+      transition: all 0.3s ease;
+      position: relative;
     }
-
-    .card {
-      background: var(--card);
-      border-radius: 16px;
-      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
-      padding: 2rem 2rem;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    
+    nav a:after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #4a6cf7;
+      transition: width 0.3s ease;
     }
-
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 18px 36px rgba(0, 0, 0, 0.12);
+    
+    nav a:hover { 
+      color: #4a6cf7;
     }
-
-    h2 {
-      margin: 0 0 1.5rem;
-      font-size: 1.8rem;
-      text-align: center;
-      font-weight: 700;
-      color: var(--primary);
-    }
-
-    /* Messages */
-    .messages {
-      margin: 0 0 1rem;
-      padding: 0;
-      list-style: none;
-    }
-
-    .messages li {
-      padding: .75rem .875rem;
-      border: 1px solid transparent;
-      border-radius: 10px;
-      margin-bottom: .5rem;
-      font-size: .95rem;
-    }
-
-    .messages li.success {
-      background: var(--success-bg);
-      color: var(--success);
-      border-color: var(--success-border);
-    }
-
-    .messages li.error {
-      background: var(--error-bg);
-      color: var(--error);
-      border-color: var(--error-border);
-    }
-
-    .messages li.info {
-      background: var(--info-bg);
-      color: var(--info);
-      border-color: var(--info-border);
-    }
-
-    .messages li.warning {
-      background: var(--warning-bg);
-      color: var(--warning);
-      border-color: var(--warning-border);
-    }
-
-    form {
-      display: grid;
-      gap: 1rem;
-    }
-
-    input {
+    
+    nav a:hover:after {
       width: 100%;
-      padding: 1rem 1rem;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      font-size: 1rem;
-      outline: none;
-      background: #fff;
+    }
+
+    /* Mobile menu button */
+    .menu-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: space-around;
+      width: 30px;
+      height: 25px;
+      cursor: pointer;
+    }
+    
+    .menu-toggle span {
+      width: 100%;
+      height: 3px;
+      background-color: #4a5568;
+      border-radius: 5px;
       transition: all 0.3s ease;
     }
 
-    input:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 10px rgba(37, 99, 235, 0.2);
+    /* Main Content */
+    .main-container {
+      display: flex;
+      flex: 1;
+      width: 100%;
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 20px;
+      gap: 40px;
     }
-
-    button {
-      padding: 1rem;
-      border: none;
-      border-radius: 12px;
-      background: var(--primary);
-      color: #fff;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.3s, transform 0.2s;
+    
+    /* Left Side - Illustration & Info */
+    .left-side {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 20px;
     }
-
-    button:hover {
-      background: var(--primary-hover);
-      transform: translateY(-2px);
-    }
-
-    .muted {
-      margin-top: 0.75rem;
-      font-size: .875rem;
-      color: var(--muted);
+    
+    .illustration {
+      margin-bottom: 30px;
       text-align: center;
     }
-
-    /* Developer credit */
-    .developer {
-      text-align: center;
-      font-size: 13px;
-      color: #555;
+    
+    .illustration img {
+      max-width: 100%;
+      height: auto;
+    }
+    
+    .features {
       margin-top: 20px;
     }
-
-    .developer a {
-      color: var(--primary);
-      font-weight: 500;
+    
+    .feature-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+      color: #4a5568;
+    }
+    
+    .feature-item i {
+      color: #4a6cf7;
+      margin-right: 10px;
+      font-size: 18px;
     }
 
-    .developer a:hover {
+    /* Right Side - Registration Form */
+    .right-side {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .form-container {
+      background: #fff;
+      padding: 35px 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      width: 100%;
+      max-width: 450px;
+      margin: 0 auto;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+    
+    .form-header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    
+    h2 { 
+      margin-bottom: 8px; 
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700; 
+      color: #2d3748; 
+      font-size: 28px;
+    }
+    
+    .form-subtitle {
+      color: #718096;
+      font-size: 15px;
+    }
+    
+    .form-content {
+      position: relative;
+    }
+    
+    .registration-form {
+      display: block;
+      animation: fadeIn 0.4s ease;
+    }
+    
+    .input-group {
+      margin-bottom: 18px;
+      text-align: left;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #4a5568;
+      font-size: 14px;
+    }
+    
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      background: #f8fafc;
+    }
+    
+    input:focus {
+      border-color: #4a6cf7;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.15);
+      background: #fff;
+    }
+    
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #4a6cf7;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      margin-top: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(74, 108, 247, 0.2);
+    }
+    
+    button:hover { 
+      background: #3b5be3; 
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(74, 108, 247, 0.25);
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    /* Messages */
+    .message {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .message i {
+      margin-right: 8px;
+    }
+    
+    .error { 
+      background: #fed7d7; 
+      color: #c53030; 
+      border-left: 4px solid #f56565;
+    }
+    
+    .success { 
+      background: #c6f6d5; 
+      color: #2d784c; 
+      border-left: 4px solid #48bb78;
+    }
+    
+    .info { 
+      background: #bee3f8; 
+      color: #2c5282; 
+      border-left: 4px solid #4299e1;
+    }
+    
+    .warning { 
+      background: #feebc8; 
+      color: #744210; 
+      border-left: 4px solid #ed8936;
+    }
+    
+    /* Links */
+    .form-links {
+      margin-top: 20px;
+      text-align: center;
+    }
+    
+    .form-links p {
+      margin: 8px 0;
+      font-size: 14px;
+    }
+    
+    a { 
+      color: #4a6cf7; 
+      text-decoration: none; 
+      font-weight: 500; 
+      transition: all 0.3s ease;
+    }
+    
+    a:hover { 
+      color: #3b5be3; 
       text-decoration: underline;
+    }
+    
+    /* Footer Credit */
+    .developer {
+      text-align: center;
+      margin: 20px;
+      font-size: 14px;
+      color: #718096;
+    }
+    
+    .developer a { 
+      color: #4a6cf7; 
+      font-weight: 500; 
+    }
+    
+    .developer a:hover { 
+      text-decoration: underline; 
+    }
+    
+    /* Custom Illustration */
+    .custom-illustration {
+      width: 100%;
+      height: 250px;
+      background: linear-gradient(135deg, #4a6cf7 0%, #8a9eff 100%);
+      border-radius: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .custom-illustration:before {
+      content: '';
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      top: -50px;
+      left: -50px;
+    }
+    
+    .custom-illustration:after {
+      content: '';
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      bottom: -50px;
+      right: -50px;
+    }
+    
+    .illustration-content {
+      z-index: 2;
+      text-align: center;
+    }
+    
+    .illustration-content i {
+      font-size: 70px;
+      margin-bottom: 15px;
+      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+    }
+    
+    .illustration-content h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+    
+    .illustration-content p {
+      font-size: 15px;
+      opacity: 0.9;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Password strength indicator */
+    .password-strength {
+      margin-top: 5px;
+      height: 5px;
+      border-radius: 5px;
+      background: #e2e8f0;
+      overflow: hidden;
+    }
+    
+    .strength-meter {
+      height: 100%;
+      width: 0;
+      transition: width 0.3s ease, background 0.3s ease;
+      border-radius: 5px;
+    }
+    
+    .strength-text {
+      font-size: 12px;
+      margin-top: 5px;
+      color: #718096;
+    }
+    
+    /* ========== RESPONSIVE DESIGN ========== */
+    
+    /* Tablets and small laptops */
+    @media (max-width: 1024px) {
+      .main-container {
+        gap: 30px;
+      }
+      
+      .form-container {
+        padding: 30px 25px;
+      }
+      
+      h2 {
+        font-size: 26px;
+      }
+    }
+    
+    /* Tablets */
+    @media (max-width: 900px) {
+      .main-container {
+        flex-direction: column;
+        margin: 20px auto;
+        gap: 30px;
+      }
+      
+      .left-side {
+        text-align: center;
+        padding: 10px;
+      }
+      
+      .feature-item {
+        justify-content: center;
+      }
+      
+      .custom-illustration {
+        height: 220px;
+      }
+      
+      .illustration-content i {
+        font-size: 60px;
+      }
+      
+      .illustration-content h3 {
+        font-size: 20px;
+      }
+    }
+    
+    /* Large smartphones */
+    @media (max-width: 768px) {
+      nav {
+        padding: 12px 5%;
+      }
+      
+      nav .logo {
+        font-size: 20px;
+      }
+      
+      .menu-toggle {
+        display: flex;
+      }
+      
+      .nav-links {
+        position: fixed;
+        top: 60px;
+        left: -100%;
+        flex-direction: column;
+        background-color: white;
+        width: 100%;
+        text-align: center;
+        transition: 0.3s;
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        padding: 20px 0;
+        gap: 15px;
+      }
+      
+      .nav-links.active {
+        left: 0;
+      }
+      
+      .main-container {
+        padding: 15px;
+        margin: 15px auto;
+      }
+      
+      .form-container {
+        padding: 25px 20px;
+        max-width: 100%;
+      }
+      
+      h2 {
+        font-size: 24px;
+      }
+      
+      .custom-illustration {
+        height: 200px;
+      }
+      
+      .illustration-content i {
+        font-size: 50px;
+      }
+      
+      .illustration-content h3 {
+        font-size: 18px;
+      }
+    }
+    
+    /* Small smartphones */
+    @media (max-width: 480px) {
+      nav {
+        padding: 10px 4%;
+      }
+      
+      nav .logo {
+        font-size: 18px;
+      }
+      
+      .main-container {
+        padding: 10px;
+        margin: 10px auto;
+        gap: 25px;
+      }
+      
+      .form-container {
+        padding: 20px 15px;
+        border-radius: 12px;
+      }
+      
+      h2 {
+        font-size: 22px;
+      }
+      
+      .form-subtitle {
+        font-size: 14px;
+      }
+      
+      input {
+        padding: 12px 14px;
+        font-size: 14px;
+      }
+      
+      button {
+        padding: 12px;
+        font-size: 15px;
+      }
+      
+      .custom-illustration {
+        height: 180px;
+      }
+      
+      .illustration-content i {
+        font-size: 45px;
+        margin-bottom: 10px;
+      }
+      
+      .illustration-content h3 {
+        font-size: 16px;
+      }
+      
+      .illustration-content p {
+        font-size: 13px;
+      }
+      
+      .feature-item {
+        font-size: 14px;
+      }
+      
+      .developer {
+        font-size: 13px;
+        margin: 15px;
+      }
+    }
+    
+    /* Very small devices */
+    @media (max-width: 360px) {
+      .form-container {
+        padding: 18px 12px;
+      }
+      
+      h2 {
+        font-size: 20px;
+      }
+      
+      .custom-illustration {
+        height: 160px;
+      }
+      
+      .illustration-content i {
+        font-size: 40px;
+      }
     }
   </style>
 </head>
@@ -199,46 +605,159 @@
 
   <!-- Navigation -->
   <nav>
-    <div class="logo"><strong>FlatMate</strong></div>
-    <div class="nav-links">
+    <div class="logo">
+      <i class="fas fa-home"></i>
+      <strong>FlatMate</strong>
+    </div>
+    
+    <div class="menu-toggle" id="mobile-menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    
+    <div class="nav-links" id="nav-links">
       <a href="#">Home</a>
       <a href="#">About</a>
       <a href="#">Contact</a>
     </div>
   </nav>
 
-  <!-- Registration Form -->
-  <div class="wrap">
-    <div class="card">
-      <h2>Roommate Registration</h2>
-
-      {% if messages %}
-      <ul class="messages">
-        {% for message in messages %}
-        <li class="{{ message.tags }}">{{ message }}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
-
-      <form method="post">
-        {% csrf_token %}
-        <input type="text" name="full_name" placeholder="Enter Full Name" required>
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="email" name="email" placeholder="Email" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <input type="email" name="admin_email" placeholder="Admin's Email" required>
-        <button type="submit">Register</button>
-      </form>
-
-      <p class="muted">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+  <!-- Main Content -->
+  <div class="main-container">
+    <!-- Left Side - Illustration & Info -->
+  
+    
+    <!-- Right Side - Registration Form -->
+    <div class="right-side">
+      <div class="form-container">
+        <div class="form-header">
+          <h2>Roommate Registration</h2>
+          <p class="form-subtitle">Create your FlatMate account</p>
+        </div>
+        
+        <!-- Messages -->
+        <div class="messages">
+          <!-- Django messages would appear here -->
+          <!-- Example message (would be generated by Django) -->
+          <!-- <div class="message info">
+            <i class="fas fa-info-circle"></i>
+            Please fill in all required fields
+          </div> -->
+        </div>
+        
+        <form method="post" class="registration-form">
+          {% csrf_token %}
+          <div class="input-group">
+            <label for="full_name">Full Name</label>
+            <input type="text" id="full_name" name="full_name" placeholder="Enter your full name" required>
+          </div>
+          
+          <div class="input-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="Choose a username" required>
+          </div>
+          
+          <div class="input-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" placeholder="Enter your email" required>
+          </div>
+          
+          <div class="input-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Create a password" required>
+            <div class="password-strength">
+              <div class="strength-meter" id="strength-meter"></div>
+            </div>
+            <div class="strength-text" id="strength-text">Password strength</div>
+          </div>
+          
+          <div class="input-group">
+            <label for="admin_email">Admin's Email</label>
+            <input type="email" id="admin_email" name="admin_email" placeholder="Enter admin's email" required>
+          </div>
+          
+          <button type="submit">
+            <i class="fas fa-user-plus"></i> Register as Roommate
+          </button>
+        </form>
+        
+        <div class="form-links">
+          <p>Already have an account? <a href="{% url 'login' %}">Log in here</a></p>
+          <p>Want to register as admin? <a href="{% url 'admin_register' %}">Admin registration</a></p>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Developer Credit -->
+  <!-- Footer -->
   <div class="developer">
-    Developed by <a href="https://portifolio-siddu-1.onrender.com/" target="_blank">uppunuti Siddhartha</a>
+    Developed by <a href="https://portifolio-siddu-1.onrender.com/" target="_blank">Uppunuti Siddhartha</a>
   </div>
 
+  <script>
+    // Mobile menu toggle
+    document.addEventListener('DOMContentLoaded', function() {
+      const mobileMenu = document.getElementById('mobile-menu');
+      const navLinks = document.getElementById('nav-links');
+      
+      mobileMenu.addEventListener('click', function() {
+        navLinks.classList.toggle('active');
+        mobileMenu.classList.toggle('active');
+      });
+      
+      // Password strength indicator
+      const passwordInput = document.getElementById('password');
+      const strengthMeter = document.getElementById('strength-meter');
+      const strengthText = document.getElementById('strength-text');
+      
+      if (passwordInput && strengthMeter && strengthText) {
+        passwordInput.addEventListener('input', function() {
+          const password = passwordInput.value;
+          let strength = 0;
+          let message = '';
+          
+          // Check password strength
+          if (password.length > 0) {
+            if (password.length < 6) {
+              strength = 20;
+              message = 'Too short';
+              strengthMeter.style.background = '#e53e3e';
+            } else {
+              // Check for uppercase, lowercase, numbers, and special characters
+              const hasUpperCase = /[A-Z]/.test(password);
+              const hasLowerCase = /[a-z]/.test(password);
+              const hasNumbers = /\d/.test(password);
+              const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+              
+              if (hasUpperCase) strength += 20;
+              if (hasLowerCase) strength += 20;
+              if (hasNumbers) strength += 20;
+              if (hasSpecial) strength += 20;
+              if (password.length > 10) strength += 20;
+              
+              if (strength <= 40) {
+                message = 'Weak';
+                strengthMeter.style.background = '#e53e3e';
+              } else if (strength <= 80) {
+                message = 'Medium';
+                strengthMeter.style.background = '#d69e2e';
+              } else {
+                message = 'Strong';
+                strengthMeter.style.background = '#38a169';
+              }
+            }
+            
+            strengthMeter.style.width = strength + '%';
+            strengthText.textContent = message;
+          } else {
+            strengthMeter.style.width = '0';
+            strengthText.textContent = 'Password strength';
+          }
+        });
+      }
+    });
+  </script>
 </body>
 
 </html>

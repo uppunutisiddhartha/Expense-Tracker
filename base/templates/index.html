@@ -394,14 +394,23 @@
             <input type="datetime-local" id="date" name="date" required>
           </div>
           <div class="form-group">
-            <label for="roommate"><i class="fas fa-user-friends"></i> Roommate</label>
-            <select id="roommate" name="roommate" required>
-              <option value="">-- Select Roommate-</option>
-              {% for r in roommates %}
-                <option value="{{ r.id }}">{{ r.full_name }}</option>
-              {% endfor %}
-            </select>
-          </div>
+    <label for="roommate"><i class="fas fa-user-friends"></i> Select Person</label>
+    <select id="roommate" name="roommate" required>
+        <option value="">-- Select --</option>
+
+        <!-- Admins -->
+        {% for admin in admins %}
+            <option value="admin-{{ admin.id }}">{{ admin.full_name }}</option>
+        {% endfor %}
+
+        <!-- Roommates -->
+        {% for r in roommates %}
+            <option value="{{ r.id }}">{{ r.full_name }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+
           <div class="form-group">
             <label for="description"><i class="fas fa-align-left"></i> Description</label>
             <input type="text" id="description" name="description" placeholder="Enter description" required>

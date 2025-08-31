@@ -1,185 +1,763 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <title>FlatMate | Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
     }
 
     body {
       font-family: 'Roboto', sans-serif;
-       background: linear-gradient(to bottom right, #e0f7fa, #f0f4f8);
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
       color: #333;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
 
-    /* Navigation Bar */
+    /* Navbar */
     nav {
-      background: #fff;
-      padding: 15px 30px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 15px 5%;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
-    nav a {
-      color: #333;
-      text-decoration: none;
-      margin-left: 20px;
-      font-weight: 500;
+    nav .logo { 
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700; 
+      font-size: 22px; 
+      color: #4a6cf7; 
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    nav .nav-links {
+      display: flex;
+      gap: 25px;
+    }
+    
+    nav a { 
+      color: #4a5568; 
+      text-decoration: none; 
+      font-weight: 500; 
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    
+    nav a:after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #4a6cf7;
+      transition: width 0.3s ease;
+    }
+    
+    nav a:hover { 
+      color: #4a6cf7;
+    }
+    
+    nav a:hover:after {
+      width: 100%;
     }
 
-    nav a:hover {
-      text-decoration: underline;
+    /* Mobile menu button */
+    .menu-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: space-around;
+      width: 30px;
+      height: 25px;
+      cursor: pointer;
+    }
+    
+    .menu-toggle span {
+      width: 100%;
+      height: 3px;
+      background-color: #4a5568;
+      border-radius: 5px;
+      transition: all 0.3s ease;
     }
 
-    /* Container */
-    .container {
-      background: #fff;
-      padding: 40px 30px;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-      width: 350px;
-      margin: auto;
-      margin-top: 80px;
+    /* Main Content */
+    .main-container {
+      display: flex;
+      flex: 1;
+      width: 100%;
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 20px;
+      gap: 40px;
+    }
+    
+    /* Left Side - Illustration & Info */
+    .left-side {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .illustration {
+      margin-bottom: 30px;
       text-align: center;
     }
-
-    h2 {
-      margin-bottom: 25px;
-      color: #333;
-      font-weight: 700;
+    
+    .illustration img {
+      max-width: 100%;
+      height: auto;
+    }
+    
+    .features {
+      margin-top: 20px;
+    }
+    
+    .feature-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+      color: #4a5568;
+    }
+    
+    .feature-item i {
+      color: #4a6cf7;
+      margin-right: 10px;
+      font-size: 18px;
     }
 
-    input {
+    /* Right Side - Login Forms */
+    .right-side {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .form-container {
+      background: #fff;
+      padding: 35px 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
       width: 100%;
+      max-width: 450px;
+      margin: 0 auto;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+    
+    .form-header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+    
+    h2 { 
+      margin-bottom: 8px; 
+      font-family: 'Poppins', sans-serif;
+      font-weight: 700; 
+      color: #2d3748; 
+      font-size: 28px;
+    }
+    
+    .form-subtitle {
+      color: #718096;
+      font-size: 15px;
+    }
+    
+    .form-tabs {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .tab {
+      flex: 1;
+      text-align: center;
       padding: 12px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      color: #718096;
+      transition: all 0.3s ease;
+      border-bottom: 3px solid transparent;
+    }
+    
+    .tab.active {
+      color: #4a6cf7;
+      border-bottom: 3px solid #4a6cf7;
+    }
+    
+    .form-content {
+      position: relative;
+      min-height: 300px;
+    }
+    
+    .login-form {
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+    
+    .login-form.active {
+      display: block;
+    }
+    
+    .input-group {
+      margin-bottom: 18px;
+      text-align: left;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #4a5568;
       font-size: 14px;
     }
-
-    input:focus {
-      border-color: #4CAF50;
-      outline: none;
-      box-shadow: 0 0 5px rgba(76, 175, 80, 0.4);
+    
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      background: #f8fafc;
     }
-
+    
+    input:focus {
+      border-color: #4a6cf7;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.15);
+      background: #fff;
+    }
+    
     button {
       width: 100%;
-      padding: 12px;
-      background: #4CAF50;
+      padding: 14px;
+      background: #4a6cf7;
       color: #fff;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
       font-size: 16px;
       font-weight: 500;
-      margin-top: 15px;
-      transition: 0.3s;
+      margin-top: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(74, 108, 247, 0.2);
     }
-
-    button:hover {
-      background: #45a049;
+    
+    button:hover { 
+      background: #3b5be3; 
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(74, 108, 247, 0.25);
     }
-
-    p {
-      margin-top: 12px;
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    .divider {
+      margin: 25px 0;
+      display: flex;
+      align-items: center;
+      text-align: center;
+      color: #718096;
       font-size: 14px;
-      color: #555;
     }
-
-    a {
-      color: #4CAF50;
-      text-decoration: none;
-      font-weight: 500;
+    
+    .divider::before, .divider::after {
+      content: "";
+      flex: 1;
+      border-bottom: 1px solid #e2e8f0;
     }
-
-    a:hover {
+    
+    .divider:not(:empty)::before { margin-right: 10px; }
+    .divider:not(:empty)::after { margin-left: 10px; }
+    
+    /* Messages */
+    .message {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .message i {
+      margin-right: 8px;
+    }
+    
+    .error { 
+      background: #fed7d7; 
+      color: #c53030; 
+      border-left: 4px solid #f56565;
+    }
+    
+    .success { 
+      background: #c6f6d5; 
+      color: #2d784c; 
+      border-left: 4px solid #48bb78;
+    }
+    
+    /* Links */
+    .form-links {
+      margin-top: 20px;
+      text-align: center;
+    }
+    
+    .form-links p {
+      margin: 8px 0;
+      font-size: 14px;
+    }
+    
+    a { 
+      color: #4a6cf7; 
+      text-decoration: none; 
+      font-weight: 500; 
+      transition: all 0.3s ease;
+    }
+    
+    a:hover { 
+      color: #3b5be3; 
       text-decoration: underline;
     }
-
-    .error {
-      color: #e74c3c;
-      font-size: 14px;
-      margin-bottom: 10px;
-    }
-
-    .success {
-      color: #2ecc71;
-      font-size: 14px;
-      margin-bottom: 10px;
-    }
-
-    /* Developer Credit */
+    
+    /* Footer Credit */
     .developer {
       text-align: center;
-      margin-top: 20px;
-      font-size: 13px;
-      color: #555;
+      margin: 20px;
+      font-size: 14px;
+      color: #718096;
     }
-
-    .developer a {
-      color: #4CAF50;
-      font-weight: 500;
+    
+    .developer a { 
+      color: #4a6cf7; 
+      font-weight: 500; 
     }
-
-    .developer a:hover {
-      text-decoration: underline;
+    
+    .developer a:hover { 
+      text-decoration: underline; 
+    }
+    
+    /* Custom Illustration */
+    .custom-illustration {
+      width: 100%;
+      height: 250px;
+      background: linear-gradient(135deg, #4a6cf7 0%, #8a9eff 100%);
+      border-radius: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .custom-illustration:before {
+      content: '';
+      position: absolute;
+      width: 200px;
+      height: 200px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      top: -50px;
+      left: -50px;
+    }
+    
+    .custom-illustration:after {
+      content: '';
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      bottom: -50px;
+      right: -50px;
+    }
+    
+    .illustration-content {
+      z-index: 2;
+      text-align: center;
+    }
+    
+    .illustration-content i {
+      font-size: 70px;
+      margin-bottom: 15px;
+      filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+    }
+    
+    .illustration-content h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+    
+    .illustration-content p {
+      font-size: 15px;
+      opacity: 0.9;
+    }
+    
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* ========== RESPONSIVE DESIGN ========== */
+    
+    /* Tablets and small laptops */
+    @media (max-width: 1024px) {
+      .main-container {
+        gap: 30px;
+      }
+      
+      .form-container {
+        padding: 30px 25px;
+      }
+      
+      h2 {
+        font-size: 26px;
+      }
+    }
+    
+    /* Tablets */
+    @media (max-width: 900px) {
+      .main-container {
+        flex-direction: column;
+        margin: 20px auto;
+        gap: 30px;
+      }
+      
+      .left-side {
+        text-align: center;
+        padding: 10px;
+      }
+      
+      .feature-item {
+        justify-content: center;
+      }
+      
+      .custom-illustration {
+        height: 220px;
+      }
+      
+      .illustration-content i {
+        font-size: 60px;
+      }
+      
+      .illustration-content h3 {
+        font-size: 20px;
+      }
+    }
+    
+    /* Large smartphones */
+    @media (max-width: 768px) {
+      nav {
+        padding: 12px 5%;
+      }
+      
+      nav .logo {
+        font-size: 20px;
+      }
+      
+      .menu-toggle {
+        display: flex;
+      }
+      
+      .nav-links {
+        position: fixed;
+        top: 60px;
+        left: -100%;
+        flex-direction: column;
+        background-color: white;
+        width: 100%;
+        text-align: center;
+        transition: 0.3s;
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        padding: 20px 0;
+        gap: 15px;
+      }
+      
+      .nav-links.active {
+        left: 0;
+      }
+      
+      .main-container {
+        padding: 15px;
+        margin: 15px auto;
+      }
+      
+      .form-container {
+        padding: 25px 20px;
+        max-width: 100%;
+      }
+      
+      h2 {
+        font-size: 24px;
+      }
+      
+      .custom-illustration {
+        height: 200px;
+      }
+      
+      .illustration-content i {
+        font-size: 50px;
+      }
+      
+      .illustration-content h3 {
+        font-size: 18px;
+      }
+    }
+    
+    /* Small smartphones */
+    @media (max-width: 480px) {
+      nav {
+        padding: 10px 4%;
+      }
+      
+      nav .logo {
+        font-size: 18px;
+      }
+      
+      .main-container {
+        padding: 10px;
+        margin: 10px auto;
+        gap: 25px;
+      }
+      
+      .form-container {
+        padding: 20px 15px;
+        border-radius: 12px;
+      }
+      
+      h2 {
+        font-size: 22px;
+      }
+      
+      .form-subtitle {
+        font-size: 14px;
+      }
+      
+      .tab {
+        padding: 10px;
+        font-size: 14px;
+      }
+      
+      input {
+        padding: 12px 14px;
+        font-size: 14px;
+      }
+      
+      button {
+        padding: 12px;
+        font-size: 15px;
+      }
+      
+      .custom-illustration {
+        height: 180px;
+      }
+      
+      .illustration-content i {
+        font-size: 45px;
+        margin-bottom: 10px;
+      }
+      
+      .illustration-content h3 {
+        font-size: 16px;
+      }
+      
+      .illustration-content p {
+        font-size: 13px;
+      }
+      
+      .feature-item {
+        font-size: 14px;
+      }
+      
+      .developer {
+        font-size: 13px;
+        margin: 15px;
+      }
+    }
+    
+    /* Very small devices */
+    @media (max-width: 360px) {
+      .form-container {
+        padding: 18px 12px;
+      }
+      
+      h2 {
+        font-size: 20px;
+      }
+      
+      .tab {
+        font-size: 13px;
+        padding: 8px;
+      }
+      
+      .custom-illustration {
+        height: 160px;
+      }
+      
+      .illustration-content i {
+        font-size: 40px;
+      }
     }
   </style>
 </head>
-
 <body>
 
   <!-- Navigation -->
   <nav>
-    <div class="logo"><strong>FlatMate</strong></div>
-    <div class="nav-links">
-      <a href="#">Home</a>
-      <a href="#">About</a>
+    <div class="logo">
+      <i class="fas fa-home"></i>
+      <strong>FlatMate</strong>
+    </div>
+    
+    <div class="menu-toggle" id="mobile-menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    
+    <div class="nav-links" id="nav-links">
+      
+      <a href="{% url 'about' %}">About</a>
       <a href="#">Contact</a>
     </div>
   </nav>
 
-  <!-- Login Container -->
-  <div class="container">
-    <h2>Login</h2>
-
-    <!-- Django messages -->
-    {% if messages %}
-    {% for message in messages %}
-    <p class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</p>
-    {% endfor %}
-    {% endif %}
-
-    <form method="post">
-      {% csrf_token %}
-      <input type="text" name="username" placeholder="Username" required>
-      <input type="password" name="password" placeholder="Password" required>
-      <button type="submit">Login</button>
-    </form>
-
-    <p><a href="{% url 'admin_register' %}">Register as Admin</a></p>
-    <p><a href="{% url 'roommate_register' %}">Register as Roommate</a></p>
+  <!-- Main Content -->
+  <div class="main-container">
+    <!-- Left Side - Illustration & Info -->
+    
+    <!-- Right Side - Login Forms -->
+    <div class="right-side">
+      <div class="form-container">
+        <div class="form-header">
+          <h2>Welcome Back</h2>
+          <p class="form-subtitle">Sign in to access your FlatMate account</p>
+        </div>
+        
+        <!-- Form Tabs -->
+        <div class="form-tabs">
+          <div class="tab active" data-tab="password">Password</div>
+          <div class="tab" data-tab="otp">OTP Login</div>
+        </div>
+        
+        <!-- Django Messages -->
+        {% if messages %}
+          {% for message in messages %}
+            <div class="message {% if message.tags %}{{ message.tags }}{% endif %}">
+              <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %}"></i>
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+        
+        <div class="form-content">
+          <!-- Password Login Form -->
+          <form method="POST" class="login-form active" id="password-form">
+            {% csrf_token %}
+            <div class="input-group">
+              <label for="username">Username</label>
+              <input type="text" id="username" name="username" placeholder="Enter your username" required>
+            </div>
+            
+            <div class="input-group">
+              <label for="password">Password</label>
+              <input type="password" id="password" name="password" placeholder="Enter your password" required>
+            </div>
+            
+            <button type="submit" name="action" value="password_login">
+              <i class="fas fa-sign-in-alt"></i> Login with Password
+            </button>
+            
+            <div class="form-links">
+              <p><a href="#">Forgot password?</a></p>
+            </div>
+          </form>
+          
+          <!-- OTP Login Form -->
+          <form method="POST" class="login-form" id="otp-form">
+            {% csrf_token %}
+            <div class="input-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" placeholder="Enter your registered email" required>
+            </div>
+            
+            <button type="submit" name="action" value="send_otp">
+              <i class="fas fa-paper-plane"></i> Send OTP
+            </button>
+            
+            <div class="form-links">
+              <p>We'll send a one-time password to your email</p>
+            </div>
+          </form>
+        </div>
+        
+        <div class="divider">OR</div>
+        
+        <div class="form-links">
+          <p>Don't have an account? <a href="{% url 'admin_register' %}">Register as Admin</a> or <a href="{% url 'roommate_register' %}">Register as Roommate</a></p>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Developer Credit -->
+  <!-- Footer -->
   <div class="developer">
-    Developed by <a href="https://portifolio-siddu-1.onrender.com/" target="_blank">uppunuti siddhartha</a>
+    Developed by <a href="https://portifolio-siddu-1.onrender.com/" target="_blank">Uppunuti Siddhartha</a>
   </div>
 
+  <script>
+    // Tab switching functionality
+    document.addEventListener('DOMContentLoaded', function() {
+      const tabs = document.querySelectorAll('.tab');
+      const forms = document.querySelectorAll('.login-form');
+      
+      tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+          const tabName = this.getAttribute('data-tab');
+          
+          // Update active tab
+          tabs.forEach(t => t.classList.remove('active'));
+          this.classList.add('active');
+          
+          // Show corresponding form
+          forms.forEach(form => {
+            form.classList.remove('active');
+            if (form.id === `${tabName}-form`) {
+              form.classList.add('active');
+            }
+          });
+        });
+      });
+      
+      // Mobile menu toggle
+      const mobileMenu = document.getElementById('mobile-menu');
+      const navLinks = document.getElementById('nav-links');
+      
+      mobileMenu.addEventListener('click', function() {
+        navLinks.classList.toggle('active');
+        mobileMenu.classList.toggle('active');
+      });
+    });
+  </script>
 </body>
-
 </html>

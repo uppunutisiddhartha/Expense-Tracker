@@ -8,6 +8,7 @@ class CustomUser(AbstractUser):
                 ('roommate','roommate'),
     ]
     full_name = models.CharField(max_length=21, blank=True, null=True) 
+    email = models.EmailField(unique=True) 
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='roommate')
     is_approved = models.BooleanField(default=False) 
     room_capacity = models.PositiveIntegerField(default=0, null=True, blank=True)  
@@ -19,7 +20,7 @@ class CustomUser(AbstractUser):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="roommates"
+        related_name="assigned_roommates"
     )
 
     def is_admin(self):
@@ -59,12 +60,13 @@ class Transaction(models.Model):
 
 
 class Room(models.Model):
-    admin = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name="admin_room")
+    admin = models.ForeignKey(CustomUser, null=True, blank=True, on_delete=models.CASCADE, related_name="roommates")
     room_name = models.CharField(max_length=100)
     capacity = models.IntegerField(default=1) 
     
     @property
     def available_vacancies(self):
+        # Only approved roommates reduce the vacancies
         return self.capacity - CustomUser.objects.filter(room=self, role="roommate", is_approved=True).count()
 
     def __str__(self):

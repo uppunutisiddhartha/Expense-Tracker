@@ -3,11 +3,14 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.mail import send_mail
+from django.db import models 
 from django.conf import settings
-from .models import *
-from datetime import datetime
+from .models import CustomUser, Room, Transaction, Payment, RentPlan
+from datetime import datetime, timedelta
 from decimal import Decimal
-
+from django.utils import timezone
+import random, string
+from django.views.decorators.cache import never_cache
 
 # ---------------- AUTH ----------------
 
@@ -47,32 +50,42 @@ def admin_register(request):
     return render(request, "admin_register.html")
 
 
+
 def roommate_register(request):
     if request.method == "POST":
-        full_name = request.POST["full_name"]
-        username = request.POST["username"]
-        email = request.POST["email"]
-        password = request.POST["password"]
-        admin_email = request.POST["admin_email"]
+        full_name = request.POST.get("full_name")
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        admin_email = request.POST.get("admin_email")
 
+        # Check if admin exists
         try:
             admin_user = CustomUser.objects.get(email=admin_email, role="admin")
         except CustomUser.DoesNotExist:
             messages.error(request, "Admin not found.")
             return redirect("roommate_register")
 
-        # ensure admin has a room
+        # Create/get admin's room
         room, created = Room.objects.get_or_create(
             admin=admin_user,
             defaults={"room_name": f"{admin_user.username}'s Room", "capacity": 5}
         )
 
-        # check capacity
+        # Check capacity (only approved roommates count)
         if room.available_vacancies <= 0:
             messages.error(request, "No vacancies available in this room.")
             return redirect("roommate_register")
 
-        # ✅ fixed typo (full_name)
+        # Prevent duplicate usernames/emails
+        if CustomUser.objects.filter(username=username).exists():
+            messages.error(request, "Username already taken.")
+            return redirect("roommate_register")
+        if CustomUser.objects.filter(email=email).exists():
+            messages.error(request, "Email already registered.")
+            return redirect("roommate_register")
+
+        # Create roommate (pending approval)
         roommate = CustomUser.objects.create_user(
             full_name=full_name,
             username=username,
@@ -84,7 +97,7 @@ def roommate_register(request):
             is_approved=False
         )
 
-        # notify admin
+        # Notify admin
         send_mail(
             "New Roommate Request",
             f"{roommate.username} ({roommate.email}) has requested to join {room.room_name}.",
@@ -96,30 +109,123 @@ def roommate_register(request):
         return redirect("login")
 
     return render(request, "roommate_register.html")
+import random, string, datetime
+from django.utils import timezone
 
-
+from django.core.exceptions import MultipleObjectsReturned
+@never_cache
+#@logout required
 def custom_login(request):
     if request.method == "POST":
-        username = request.POST["username"]
-        password = request.POST["password"]
-        user = authenticate(request, username=username, password=password)
+        action = request.POST.get("action")
 
-        if user is not None:
-            if user.is_roommate() and not user.is_approved:
-                messages.error(request, "Your account is pending admin approval.")
+        # ---------------- Normal Login ----------------
+        if action == "password_login":
+            username = request.POST["username"]
+            password = request.POST["password"]
+            user = authenticate(request, username=username, password=password)
+
+            if user is not None:
+                if user.is_roommate() and not user.is_approved:
+                    messages.error(request, "Your account is pending admin approval.")
+                    return redirect("login")
+
+                login(request, user)
+                return redirect("index" if user.is_admin() else "userpage")
+
+            else:
+                messages.error(request, "Invalid credentials.")
                 return redirect("login")
 
-            login(request, user)
+        # ---------------- Send OTP ----------------
+        elif action == "send_otp":
+            email = request.POST.get("email")
+            users = CustomUser.objects.filter(email=email)
 
-            if user.is_admin():
-                return redirect("index")
-            else:
-                return redirect("userpage")
-        else:
-            messages.error(request, "Invalid credentials.")
-            return redirect("login")
+            if not users.exists():
+                messages.error(request, "Email not registered.")
+                return redirect("login")
+
+            if users.count() > 1:
+                messages.error(request, "Multiple accounts found with this email. Please use username login.")
+                return redirect("login")
+
+            user = users.first()
+
+            otp = ''.join(random.choices(string.digits, k=6))
+            request.session['otp'] = otp
+            request.session['otp_email'] = email
+            request.session['otp_expiry'] = (timezone.now() + timedelta(minutes=5)).isoformat()
+
+            # Send OTP email
+            send_mail(
+                "Your Login OTP",
+                f"Your OTP is {otp}. It expires in 5 minutes.",
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+            )
+
+            messages.success(request, "OTP sent to your email.")
+            return redirect("verify_otp")
 
     return render(request, "login.html")
+
+
+from django.utils.dateparse import parse_datetime
+from django.utils import timezone
+from django.contrib import messages
+from django.shortcuts import redirect, render
+from django.contrib.auth import login
+from .models import CustomUser
+
+def verify_otp(request):
+    if request.method == "POST":
+        entered_otp = request.POST.get("otp")
+        saved_otp = request.session.get("otp")
+        email = request.session.get("otp_email")
+        expiry = request.session.get("otp_expiry")
+
+        if not (saved_otp and email and expiry):
+            messages.error(request, "Session expired. Try again.")
+            return redirect("login")
+
+        # Convert expiry string to datetime
+        expiry_dt = parse_datetime(expiry)
+        if not expiry_dt:
+            messages.error(request, "Invalid OTP expiry. Try again.")
+            return redirect("login")
+
+        # Check if OTP has expired
+        if timezone.now() > expiry_dt:
+            messages.error(request, "OTP expired. Please login again.")
+            return redirect("login")
+
+        if entered_otp == saved_otp:
+            try:
+                user = CustomUser.objects.get(email=email)
+
+                # Block roommates if not approved
+                if user.is_roommate() and not user.is_approved:
+                    messages.error(request, "Your account is pending admin approval.")
+                    return redirect("login")
+
+                login(request, user)
+                messages.success(request, "Login successful!")
+                return redirect("index" if user.is_admin() else "userpage")
+
+            except CustomUser.DoesNotExist:
+                messages.error(request, "User not found.")
+                return redirect("login")
+
+            except CustomUser.MultipleObjectsReturned:
+                messages.error(request, "Multiple accounts found with this email. Please use username login.")
+                return redirect("login")
+
+        else:
+            messages.error(request, "Invalid OTP. Try again.")
+            return redirect("verify_otp")
+
+    return render(request, "verify_otp.html")
 
 
 def custom_logout(request):
@@ -129,14 +235,8 @@ def custom_logout(request):
 
 # ---------------- TRANSACTIONS ----------------
 
-from decimal import Decimal
-from datetime import datetime
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.shortcuts import render, redirect
-from .models import CustomUser, Transaction, Payment, RentPlan
-
-
+@login_required
+@never_cache
 @login_required
 def index(request):
     if request.user.is_roommate() and not request.user.is_approved:
@@ -148,12 +248,23 @@ def index(request):
         assigned_admin=request.user, role="roommate", is_approved=True
     ) if request.user.is_admin() else []
 
-    # ----------------- Handle Add Transaction -----------------
+    # Admin list for dropdown
+    admins = CustomUser.objects.filter(role="admin") if request.user.is_admin() else []
+
+    # Handle Add Transaction
     if request.method == "POST" and request.user.is_admin():
         date_str = request.POST.get("date")
         formatted_date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M")
-        roommate_id = request.POST.get("roommate")
-        roommate = CustomUser.objects.get(id=roommate_id) if roommate_id else None
+        selected_id = request.POST.get("roommate")  # can be 'admin-3' or '5'
+
+        roommate = None
+        if selected_id:
+            if selected_id.startswith("admin-"):
+                # Admin selected, no roommate assigned
+                roommate = None
+            else:
+                # Roommate selected
+                roommate = CustomUser.objects.get(id=selected_id)
 
         Transaction.objects.create(
             admin=request.user,
@@ -167,44 +278,35 @@ def index(request):
         )
         return redirect("index")
 
-    # ----------------- Dashboard Calculations -----------------
+    # Dashboard calculations
     transactions = Transaction.objects.all().order_by("-date")
 
-    # Separate incomes and expenses from Transaction
     total_income = sum(t.amount for t in transactions if t.transaction_type == "Income")
     total_expense = sum(t.amount for t in transactions if t.transaction_type == "Expense")
+    adjusted_expense = max(total_expense - total_income, Decimal(0))
 
-    # Rent Plan (to calculate expected rent & savings)
     rent_plan = RentPlan.objects.filter(admin=request.user).first()
+    expected_rent = rent_plan.monthly_amount * roommates.count() if rent_plan else Decimal(0)
 
-    if rent_plan:
-        expected_rent = rent_plan.monthly_amount * CustomUser.objects.filter(
-            assigned_admin=request.user, role="roommate", is_approved=True
-        ).count()
-    else:
-        expected_rent = Decimal(0)
-
-    # Rent Collected (from Payments)
     rent_collected = Payment.objects.filter(rent_plan__admin=request.user).aggregate(
         total=models.Sum("amount_paid")
     )["total"] or Decimal(0)
 
-    # Draft = Expected rent - collected rent
     draft = expected_rent - rent_collected
-
-    # Savings = Rent collected + income - expenses
-    savings = rent_collected + total_income - total_expense
+    savings = max(rent_collected - adjusted_expense, Decimal(0))
 
     return render(request, "index.html", {
         "transactions": transactions,
         "roommates": roommates,
+        "admins": admins,
         "total_income": total_income,
-        "total_expense": total_expense,
+        "total_expense": adjusted_expense,
         "expected_rent": expected_rent,
         "rent_collected": rent_collected,
         "draft": draft,
         "savings": savings,
     })
+
 
 @login_required
 def approve_roommates(request):
@@ -248,6 +350,7 @@ def approve_roommates(request):
 
 
 # ---------------- USER PAGE ----------------
+@never_cache
 @login_required
 def userpage(request):
     user = request.user
@@ -261,7 +364,7 @@ def userpage(request):
     # Get or create the rent plan of the admin
     rent_plan, _ = RentPlan.objects.get_or_create(admin=admin_user)
 
-    # --- Dashboard Data ---
+    # --- Roommates & Payment Data ---
     roommates = CustomUser.objects.filter(assigned_admin=admin_user, role="roommate")
     roommate_count = roommates.count()
 
@@ -284,7 +387,12 @@ def userpage(request):
     total_expected = rent_plan.monthly_amount * Decimal(roommate_count)
     draft = total_expected - total_collected
 
-    transactions = Transaction.objects.filter(rent_plan=rent_plan).order_by('-date')
+    # --- Transactions ---
+    # Fetch transactions related to the admin OR this user (if roommate)
+    transactions = Transaction.objects.filter(
+        admin=admin_user
+    ).order_by('-date')
+
     total_expenses = sum(t.amount for t in transactions if t.transaction_type == "Expense")
     total_income = sum(t.amount for t in transactions if t.transaction_type == "Income")
     savings = total_collected - total_expenses + total_income
@@ -302,13 +410,13 @@ def userpage(request):
 
 
 
+
 # ---------------- RENT DASHBOARD ----------------
 
-@login_required
 def admin_rent_dashboard(request):
     admin_user = request.user
     if not admin_user.is_admin():
-        return redirect("rent_status")
+        return redirect("login")
 
     rent_plan, created = RentPlan.objects.get_or_create(admin=admin_user)
 
@@ -399,3 +507,35 @@ def admin_rent_dashboard(request):
         "total_income": total_income,
         "savings": savings,
     })
+# def verify_otp(request):
+#     if request.method == "POST":
+#         entered_otp = request.POST.get("otp")
+#         saved_otp = request.session.get("otp")
+#         email = request.session.get("otp_email")
+#         expiry = request.session.get("otp_expiry")
+
+#         if not (saved_otp and email and expiry):
+#             messages.error(request, "Session expired. Try again.")
+#             return redirect("login")
+
+#         # ✅ fixed here
+#         if timezone.now() > datetime.fromisoformat(expiry):
+#             messages.error(request, "OTP expired. Please login again.")
+#             return redirect("login")
+
+#         if entered_otp == saved_otp:
+#             try:
+#                 user = CustomUser.objects.get(email=email)
+#                 login(request, user)
+#                 messages.success(request, "Login successful!")
+#                 return redirect("index" if user.is_admin() else "userpage")
+#             except CustomUser.DoesNotExist:
+#                 messages.error(request, "User not found.")
+#                 return redirect("login")
+#         else:
+#             messages.error(request, "Invalid OTP.")
+#             return redirect("verify_otp")
+
+#     return render(request, "verify_otp.html")
+def about(request):
+    return render(request, "about.html")

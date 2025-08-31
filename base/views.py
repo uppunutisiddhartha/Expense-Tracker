@@ -10,6 +10,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from django.utils import timezone
 import random, string
+from datetime import datetime
 from django.views.decorators.cache import never_cache
 
 # ---------------- AUTH ----------------
@@ -237,16 +238,18 @@ def custom_logout(request):
 
 @login_required
 @never_cache
-@login_required
+
 def index(request):
     if request.user.is_roommate() and not request.user.is_approved:
         messages.error(request, "Your account is not approved yet.")
         return redirect("login")
 
     # Admin can see roommates
-    roommates = CustomUser.objects.filter(
-        assigned_admin=request.user, role="roommate", is_approved=True
-    ) if request.user.is_admin() else []
+    roommates = (
+        CustomUser.objects.filter(assigned_admin=request.user, role="roommate", is_approved=True)
+        if request.user.is_admin()
+        else []
+    )
 
     # Admin list for dropdown
     admins = CustomUser.objects.filter(role="admin") if request.user.is_admin() else []
@@ -254,24 +257,28 @@ def index(request):
     # Handle Add Transaction
     if request.method == "POST" and request.user.is_admin():
         date_str = request.POST.get("date")
-        formatted_date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M")
+        try:
+            formatted_date = datetime.strptime(date_str, "%Y-%m-%dT%H:%M")
+        except (ValueError, TypeError):
+            messages.error(request, "Invalid date format.")
+            return redirect("index")
+
         selected_id = request.POST.get("roommate")  # can be 'admin-3' or '5'
 
         roommate = None
-        if selected_id:
-            if selected_id.startswith("admin-"):
-                # Admin selected, no roommate assigned
-                roommate = None
-            else:
-                # Roommate selected
+        if selected_id and not selected_id.startswith("admin-"):
+            try:
                 roommate = CustomUser.objects.get(id=selected_id)
+            except CustomUser.DoesNotExist:
+                messages.error(request, "Selected roommate does not exist.")
+                return redirect("index")
 
         Transaction.objects.create(
             admin=request.user,
             roommate=roommate,
             date=formatted_date,
             description=request.POST.get("description"),
-            amount=Decimal(request.POST.get("amount")),
+            amount=Decimal(request.POST.get("amount") or 0),
             category=request.POST.get("category"),
             transaction_type=request.POST.get("transaction_type"),
             mode_of_transaction=request.POST.get("mode_of_transaction"),
@@ -280,7 +287,6 @@ def index(request):
 
     # Dashboard calculations
     transactions = Transaction.objects.all().order_by("-date")
-
     total_income = sum(t.amount for t in transactions if t.transaction_type == "Income")
     total_expense = sum(t.amount for t in transactions if t.transaction_type == "Expense")
     adjusted_expense = max(total_expense - total_income, Decimal(0))
@@ -306,7 +312,6 @@ def index(request):
         "draft": draft,
         "savings": savings,
     })
-
 
 @login_required
 def approve_roommates(request):

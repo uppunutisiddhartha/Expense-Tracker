@@ -97,12 +97,18 @@ EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="sankabuddisrikanth05@gmail.
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="hxxa fshx jywo xzao")
 
 # ✅ Fix session expired issue
-SESSION_ENGINE = "django.contrib.sessions.backends.db"
-SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 1 week (session lives longer)
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 7  # 1 week
 SESSION_SAVE_EVERY_REQUEST = True
 
-# Secure cookies (only on HTTPS)
-CSRF_TRUSTED_ORIGINS = ["https://expense-tracker-6y0n.onrender.com"]
-CSRF_COOKIE_SECURE = True
+# Secure cookies (since Render is HTTPS)
 SESSION_COOKIE_SECURE = True
-SESSION_COOKIE_SAMESITE = "Lax"
+CSRF_COOKIE_SECURE = True
+
+# Must allow cookies across subdomains
+SESSION_COOKIE_SAMESITE = "Lax"  # or "None" if you use cross-site AJAX
+
+# Add trusted origin for CSRF
+CSRF_TRUSTED_ORIGINS = [
+    "https://expense-tracker-1-6fws.onrender.com",
+    "https://expense-tracker-6y0n.onrender.com",
+]

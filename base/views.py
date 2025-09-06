@@ -156,13 +156,18 @@ def custom_login(request):
             user = users.first()
 
             # ✅ Clear old OTP data before generating a new one
-            for key in ["otp", "otp_email", "otp_expiry"]:
+            for key in ["otp", "otp_email", "otp_expiry", "otp_attempts"]:
                 request.session.pop(key, None)
 
             otp = ''.join(random.choices(string.digits, k=6))
             request.session['otp'] = otp
             request.session['otp_email'] = email
             request.session['otp_expiry'] = (timezone.now() + timedelta(minutes=5)).isoformat()
+            request.session['otp_attempts'] = 0
+            request.session.modified = True
+            print("NEW OTP GENERATED:", otp, "FOR:", email)
+            print("SESSION AFTER SET:", dict(request.session))
+
 
             # Send OTP email
             send_mail(
@@ -357,7 +362,7 @@ def approve_roommates(request):
 
 
 # ---------------- USER PAGE ----------------
-@never_cache
+
 @login_required
 def userpage(request):
     user = request.user
